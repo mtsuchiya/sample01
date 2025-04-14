@@ -5,6 +5,8 @@ on:
 jobs:
   dependabot-notifier:
     runs-on: ubuntu-latest
+    permissions:
+      security-events: read
     steps:
       - name: GitHub CLI
         env:
