@@ -32,9 +32,6 @@ jobs:
           echo $res >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
 
-      - name: echo result
-        run: echo ${{ steps.get-dependabot-alert.outputs.DEPENDABOT_ALERTS }}
-
       - name: get count
         id: get-count
         run: |
