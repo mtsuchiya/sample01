@@ -55,7 +55,7 @@ jobs:
 
       - name: Slack Notification Dependabot alerts
         uses: rtCamp/action-slack-notify@v2
-        if: steps.vulunabilities-result.outputs.SLACK_MESSAGE != ''
+        if: steps.get-count.outputs.SLACK_MESSAGE != ''
         env:
           SLACK_TITLE: Dependabot
           SLACK_COLOR: good
