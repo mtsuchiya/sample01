@@ -38,10 +38,14 @@ jobs:
           dependabot_alerts='${{ steps.get-dependabot-alert.outputs.DEPENDABOT_ALERTS }}'
           echo "TOTAL_COUNT=$(echo $dependabot_alerts | jq 'length')" >> "$GITHUB_OUTPUT"
           echo "CRITICAL_COUNT=$(echo $dependabot_alerts | jq '.[] | select(.severity == "critical") | .severity' | wc -l)" >> "$GITHUB_OUTPUT"
+          message=$(cat << EOS
+          Dependabot alerts を確認してください。
+          https://github.com/mtsuchiya/sample01/security/dependabot
+          TOTAL_COUNT=$(echo $dependabot_alerts | jq 'length')
+          EOS
+          )
           echo "SLACK_MESSAGE<<EOF" >> "$GITHUB_OUTPUT"
-          echo "Dependabot alerts を確認してください。" >> "$GITHUB_OUTPUT"
-          echo "https://github.com/mtsuchiya/sample01/security/dependabot" >> "$GITHUB_OUTPUT"
-          echo "TOTAL_COUNT=$(echo $dependabot_alerts | jq 'length')" >> "$GITHUB_OUTPUT"
+          echo $message >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
 
       - name: echo count
