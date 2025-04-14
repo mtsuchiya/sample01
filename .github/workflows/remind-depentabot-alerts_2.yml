@@ -11,8 +11,6 @@ jobs:
     steps:
       - name: Get Dependabot alerts
         id: get-dependabot-alerts
-        env:
-          GH_TOKEN: ${{ secrets.DEPENDABOT_TOKEN }}
         run: |
           dependabot_alerts=$(gh api \
              -H "Accept: application/vnd.github+json" \
