@@ -18,16 +18,15 @@ jobs:
              /repos/mtsuchiya/sample01/dependabot/alerts?state=open \
              --jq \
              'map({
-                c: .created_at,
-                e: .dependency.package.ecosystem,
-                n: .dependency.package.name,
-                s: .security_vulnerability.severity
-              })
-              | unique_by(.s, .e, .n)
-              | sort_by(.c)
-              | reverse[]
-              | "\(.s) on (\(.c)):  \(.e) の \(.n)"
-             ' > vuls.txt || true
+                severity: .security_vulnerability.severity,
+                package_name: .dependency.package.name,
+                created_at: .created_at
+              })' > vuls.txt || true
+          echo "total: `cat vuls.txt | jq 'length'`" > vuls_summary.txt
+          echo "critical: `cat vuls.txt | jq '.[] | select(.severity == "critical") | .severity' | wc -l`" >> vuls_summary.txt
+          echo "high: `cat vuls.txt | jq '.[] | select(.severity == "high") | .severity' | wc -l`" >> vuls_summary.txt
+          echo "medium: `cat vuls.txt | jq '.[] | select(.severity == "medium") | .severity' | wc -l`" >> vuls_summary.txt
+          echo "low: `cat vuls.txt | jq '.[] | select(.severity == "low") | .severity' | wc -l`" >> vuls_summary.txt
 
       - name: cat result
-        run: cat vuls.txt
+        run: cat vuls_summary.txt
