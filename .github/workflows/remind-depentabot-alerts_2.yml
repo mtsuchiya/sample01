@@ -32,5 +32,5 @@ jobs:
           echo $res >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
 
-      - name: cat result
-        run: cat steps.get-dependabot-alert.outputs.DEPENDABOT_ALERTS
+      - name: echo result
+        run: echo ${{ steps.get-dependabot-alert.outputs.DEPENDABOT_ALERTS }}
