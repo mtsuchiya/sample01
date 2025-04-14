@@ -42,10 +42,10 @@ jobs:
           echo "$(cat vuls_summary.txt)" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
 
-      - name: Slack Notification on Success
+      - name: Slack Notification Dependabot alerts
         uses: rtCamp/action-slack-notify@v2
-        if: ${{ success() }}
+        if: steps.vulunabilities-result.outputs.VULNERABILITIES != ''
         env:
           SLACK_TITLE: Dependabot
           SLACK_COLOR: good
-          SLACK_MESSAGE: Dependabot alerts を確認してください。 \n${{ env.VULNERABILITIES }}\nhttps://github.com/mtsuchiya/sample01/security/dependabot"
+          SLACK_MESSAGE: Dependabot alerts を確認してください。 \n${{ steps.vulunabilities-result.outputs.VULNERABILITIES }}\nhttps://github.com/mtsuchiya/sample01/security/dependabot"
