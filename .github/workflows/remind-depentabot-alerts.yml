@@ -10,7 +10,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh api '/repos/<your_org>/<your_repository>/dependabot/alerts?state=open' \
+          gh api '/repos/mtsuchiya/sample01/dependabot/alerts?state=open' \
              --jq \
              'map({
                 c: .created_at,
