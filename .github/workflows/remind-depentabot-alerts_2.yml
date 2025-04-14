@@ -41,7 +41,9 @@ jobs:
           message=$(cat << EOS
           Dependabot alerts を確認してください。
           https://github.com/mtsuchiya/sample01/security/dependabot
-          TOTAL_COUNT=$(echo $dependabot_alerts | jq 'length')
+          
+          TOTAL COUNT: $(echo $dependabot_alerts | jq 'length')
+          CRITICAL COUNT: $(echo $dependabot_alerts | jq '.[] | select(.severity == "critical") | .severity' | wc -l)
           EOS
           )
           echo "SLACK_MESSAGE<<EOF" >> "$GITHUB_OUTPUT"
