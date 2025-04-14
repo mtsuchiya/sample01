@@ -1,9 +1,5 @@
 name: Remind Dependabot alerts
 on:
-  schedule:
-    # 好きな間隔で設定
-    - cron: '0 1/6/9 * * *'
-  # 手動
   workflow_dispatch:
 
 jobs:
@@ -13,7 +9,6 @@ jobs:
       - name: GitHub CLI
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        # jqの整形は各自適当にやってください
         run: |
           gh api '/repos/<your_org>/<your_repository>/dependabot/alerts?state=open' \
              --jq \
