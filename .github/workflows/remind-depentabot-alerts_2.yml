@@ -36,10 +36,23 @@ jobs:
         id: get-count
         run: |
           dependabot_alerts='${{ steps.get-dependabot-alert.outputs.DEPENDABOT_ALERTS }}'
-          echo "total_count=$(echo $dependabot_alerts | jq 'length')" >> "$GITHUB_OUTPUT"
-          echo "critical_count=$(echo '${{ steps.get-dependabot-alert.outputs.DEPENDABOT_ALERTS }}' | jq '.[] | select(.severity == "critical") | .severity' | wc -l)" >> "$GITHUB_OUTPUT"
+          echo "TOTAL_COUNT=$(echo $dependabot_alerts | jq 'length')" >> "$GITHUB_OUTPUT"
+          echo "CRITICAL_COUNT=$(echo $dependabot_alerts | jq '.[] | select(.severity == "critical") | .severity' | wc -l)" >> "$GITHUB_OUTPUT"
+          echo "SLACK_MESSAGE<<EOF" >> "$GITHUB_OUTPUT"
+          echo "Dependabot alerts を確認してください。" >> "$GITHUB_OUTPUT"
+          echo "https://github.com/mtsuchiya/sample01/security/dependabot" >> "$GITHUB_OUTPUT"
+          echo "TOTAL_COUNT=$(echo $dependabot_alerts | jq 'length')" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
 
       - name: echo count
         run: |
-          echo ${{ steps.get-count.outputs.total_count }}
-          echo ${{ steps.get-count.outputs.critical_count }}
+          echo ${{ steps.get-count.outputs.TOTAL_COUNT }}
+          echo ${{ steps.get-count.outputs.SLACK_MESSAGE }}
+
+      - name: Slack Notification Dependabot alerts
+        uses: rtCamp/action-slack-notify@v2
+        if: steps.vulunabilities-result.outputs.SLACK_MESSAGE != ''
+        env:
+          SLACK_TITLE: Dependabot
+          SLACK_COLOR: good
+          SLACK_MESSAGE: ${{ steps.get-count.outputs.SLACK_MESSAGE }}
