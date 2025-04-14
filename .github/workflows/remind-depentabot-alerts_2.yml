@@ -2,10 +2,6 @@ name: Remind Dependabot alerts2
 on:
   push:
   workflow_dispatch:
-env:
-  SLACK_USERNAME: DeployBot
-  SLACK_ICON: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
-  SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
 
 jobs:
   dependabot-notifier2:
@@ -34,28 +30,26 @@ jobs:
 
       - name: get count
         id: get-count
+        if: steps.get-dependabot-alert.outputs.DEPENDABOT_ALERTS != ''
         run: |
           dependabot_alerts='${{ steps.get-dependabot-alert.outputs.DEPENDABOT_ALERTS }}'
-          echo "TOTAL_COUNT=$(echo $dependabot_alerts | jq 'length')" >> "$GITHUB_OUTPUT"
-          echo "CRITICAL_COUNT=$(echo $dependabot_alerts | jq '.[] | select(.severity == "critical") | .severity' | wc -l)" >> "$GITHUB_OUTPUT"
           message="Dependabot alerts を確認してください。\n\
           https://github.com/mtsuchiya/sample01/security/dependabot\n\
           total count: $(echo $dependabot_alerts | jq 'length')\n\
-          critical count: $(echo $dependabot_alerts | jq '.[] | select(.severity == "critical") | .severity' | wc -l)\n"
-          echo "SLACK_MESSAGE<<EOF" >> "$GITHUB_OUTPUT"
-          echo $message >> "$GITHUB_OUTPUT"
-          echo "EOF" >> "$GITHUB_OUTPUT"
-
-      - name: echo count
-        run: |
-          echo ${{ steps.get-count.outputs.TOTAL_COUNT }}
-          echo ${{ steps.get-count.outputs.SLACK_MESSAGE }}
+          critical count: $(echo $dependabot_alerts | jq '.[] | select(.severity == "critical") | .severity' | wc -l)\n\
+          high count: $(echo $dependabot_alerts | jq '.[] | select(.severity == "high") | .severity' | wc -l)\n\
+          medium count: $(echo $dependabot_alerts | jq '.[] | select(.severity == "medium") | .severity' | wc -l)\n\
+          low count: $(echo $dependabot_alerts | jq '.[] | select(.severity == "low") | .severity' | wc -l)\n"
+          echo "SLACK_MESSAGE=$message" >> "$GITHUB_OUTPUT"
 
       - name: Slack Notification Dependabot alerts
         uses: rtCamp/action-slack-notify@v2
         if: steps.get-count.outputs.SLACK_MESSAGE != ''
         env:
-          SLACK_TITLE: Dependabot
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_USERNAME: DeployBot
+          SLACK_ICON: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+          SLACK_TITLE: Dependabot alerts
           SLACK_COLOR: good
           ENABLE_ESCAPES: true
           SLACK_MESSAGE: ${{ steps.get-count.outputs.SLACK_MESSAGE }}
