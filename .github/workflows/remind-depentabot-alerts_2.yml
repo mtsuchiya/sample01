@@ -17,7 +17,7 @@ jobs:
           dependabot_alerts=$(gh api \
              -H "Accept: application/vnd.github+json" \
              -H "X-GitHub-Api-Version: 2022-11-28" \
-             /repos/mtsuchiya/sample02/dependabot/alerts?state=open \
+             /repos/mtsuchiya/sample01/dependabot/alerts?state=close \
              --jq \
              'map({
                 severity: .security_vulnerability.severity,
