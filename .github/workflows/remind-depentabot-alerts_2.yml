@@ -35,8 +35,7 @@ jobs:
       - name: get count
         id: get-count
         run: |
-          dependabot_alerts="'"${{ steps.get-dependabot-alert.outputs.DEPENDABOT_ALERTS }}"'"
-          echo "total_count=$(echo $dependabot_alerts | jq 'length')" >> "$GITHUB_OUTPUT"
+          echo "total_count=$(echo \'${{ steps.get-dependabot-alert.outputs.DEPENDABOT_ALERTS }}\' | jq 'length')" >> "$GITHUB_OUTPUT"
 
       - name: echo count
         run: |
