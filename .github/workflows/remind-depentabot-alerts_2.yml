@@ -1,4 +1,4 @@
-name: Remind Dependabot alerts
+name: Remind Dependabot alerts2
 on:
   push:
   workflow_dispatch:
@@ -34,3 +34,12 @@ jobs:
 
       - name: echo result
         run: echo ${{ steps.get-dependabot-alert.outputs.DEPENDABOT_ALERTS }}
+
+      - name: get count
+        id: get-count
+        run: |
+          echo "total_count=$(echo ${{ steps.get-dependabot-alert.outputs.DEPENDABOT_ALERTS }} | jq 'length')" >> "$GITHUB_OUTPUT"
+
+      - name: echo count
+        run: |
+          echo ${{ steps.get-count.outputs.total_count }}
