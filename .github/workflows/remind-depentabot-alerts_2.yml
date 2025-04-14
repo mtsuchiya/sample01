@@ -38,14 +38,10 @@ jobs:
           dependabot_alerts='${{ steps.get-dependabot-alert.outputs.DEPENDABOT_ALERTS }}'
           echo "TOTAL_COUNT=$(echo $dependabot_alerts | jq 'length')" >> "$GITHUB_OUTPUT"
           echo "CRITICAL_COUNT=$(echo $dependabot_alerts | jq '.[] | select(.severity == "critical") | .severity' | wc -l)" >> "$GITHUB_OUTPUT"
-          message=$(cat << EOS
-          Dependabot alerts を確認してください。
-          https://github.com/mtsuchiya/sample01/security/dependabot
-          
-          TOTAL COUNT: $(echo $dependabot_alerts | jq 'length')
-          CRITICAL COUNT: $(echo $dependabot_alerts | jq '.[] | select(.severity == "critical") | .severity' | wc -l)
-          EOS
-          )
+          message="Dependabot alerts を確認してください。\n\
+          https://github.com/mtsuchiya/sample01/security/dependabot\n\
+          total count: $(echo $dependabot_alerts | jq 'length')\n\
+          critical count: $(echo $dependabot_alerts | jq '.[] | select(.severity == "critical") | .severity' | wc -l)\n"
           echo "SLACK_MESSAGE<<EOF" >> "$GITHUB_OUTPUT"
           echo $message >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
@@ -61,4 +57,5 @@ jobs:
         env:
           SLACK_TITLE: Dependabot
           SLACK_COLOR: good
+          ENABLE_ESCAPES: true
           SLACK_MESSAGE: ${{ steps.get-count.outputs.SLACK_MESSAGE }}
