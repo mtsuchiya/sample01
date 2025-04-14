@@ -8,7 +8,7 @@ env:
   SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
 
 jobs:
-  dependabot-notifier:
+  dependabot-notifier2:
     runs-on: ubuntu-latest
     permissions:
       security-events: read
