@@ -31,5 +31,9 @@ jobs:
                 'X-GitHub-Api-Version': '2022-11-28'
               }
             })
+            j = res.map((value) => ({
+                "severity" : value.security_vulnerability.severity,
+                "package_name" : value.dependency.package.name
+            }))
             
-            console.log(res)
+            console.log(j)
