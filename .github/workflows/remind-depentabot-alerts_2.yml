@@ -40,11 +40,15 @@ jobs:
           DEPENDABOT_ALERTS_DATA: ${{ steps.get-dependabot-alerts.outputs.result }}
         uses: actions/github-script@v7
         with:
+          result-encoding: string
           script: |
             const {DEPENDABOT_ALERTS_DATA} = process.env
             const alerts_data = JSON.parse(DEPENDABOT_ALERTS_DATA)
             console.log(alerts_data)
             const totalCount = alerts_data.length
+            if (totalCount == 0) {
+              return ""
+            }
             let a = ['critical', 'high', 'medium', 'low']
             const criticalCount = alerts_data.filter(val => val.severity === 'critical').length
             const highCount = alerts_data.filter(val => val.severity === 'high').length
@@ -59,3 +63,16 @@ jobs:
               `low count:    ${lowCount}`
             ]
             console.log(messages.join('\n'))
+            return messages.join('\n')
+
+      - name: Slack Notification Dependabot alerts
+        uses: rtCamp/action-slack-notify@v2
+        if: steps.create-slack-message.outputs.result != ''
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_USERNAME: Dependabot
+          SLACK_ICON: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+          SLACK_TITLE: Dependabot alerts
+          SLACK_COLOR: good
+          ENABLE_ESCAPES: true
+          SLACK_MESSAGE: ${{ steps.create-slack-message.outputs.result }}
