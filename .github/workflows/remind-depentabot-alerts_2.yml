@@ -23,9 +23,6 @@ jobs:
           github-token: ${{ steps.generate-token.outputs.token }}
           script: |
             console.log(context)
-            const octokit = new Octokit({
-              auth: env.TOKEN
-            })
   
             const res = await octokit.request('GET /repos/{owner}/{repo}/dependabot/alerts', {
               owner: 'mtsuchiya',
