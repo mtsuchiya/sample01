@@ -29,7 +29,7 @@ jobs:
 
       - name: Create Slack Message
         id: create-slack-message
-        if: (echo ${{ steps.get-dependabot-alerts.outputs.DEPENDABOT_ALERTS }} | jq 'length' > 0)
+        if: ${{ echo steps.get-dependabot-alerts.outputs.DEPENDABOT_ALERTS | jq 'length' > 0 }}
         run: |
           dependabot_alerts='${{ steps.get-dependabot-alerts.outputs.DEPENDABOT_ALERTS }}'
           slack_message="Dependabot alerts を確認してください。\n\
