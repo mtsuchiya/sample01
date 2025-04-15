@@ -23,7 +23,7 @@ jobs:
                 severity: .security_vulnerability.severity,
                 package_name: .dependency.package.name
               })')
-          $dependabot_alerts=""
+          dependabot_alerts=""
           echo "DEPENDABOT_ALERTS<<EOF" >> "$GITHUB_OUTPUT"
           echo $dependabot_alerts >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
