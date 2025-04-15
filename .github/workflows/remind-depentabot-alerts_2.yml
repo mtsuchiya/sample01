@@ -37,12 +37,13 @@ jobs:
       - name: Create Slack Message
         id: create-slack-message
         env:
-          dependabot_alerts_data: ${{ steps.get-dependabot-alerts.outputs.result }}
+          DEPENDABOT_ALERTS_DATA: ${{ steps.get-dependabot-alerts.outputs.result }}
         uses: actions/github-script@v7
         with:
           script: |
-            const {dependabot_alerts_data} = process.env
-            console.log(dependabot_alerts_data)
-            const totalCount = dependabot_alerts_data.length
-            //const criticalCount = dependabot_alerts_data.filter(val => val.severity === 'critical').length
-            console.log(totalCount)
+            const {DEPENDABOT_ALERTS_DATA} = process.env
+            const alerts_data = JSON.parse(DEPENDABOT_ALERTS_DATA)
+            console.log(alerts_data)
+            const totalCount = alerts_data.length
+            const criticalCount = alerts_data.filter(val => val.severity === 'critical').length
+            console.log(`${totalCount}, ${criticalCount}`)
