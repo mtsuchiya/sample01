@@ -29,13 +29,10 @@ jobs:
                 'X-GitHub-Api-Version': '2022-11-28'
               }
             })
-            j = res.data.map((value) => ({
+            return res.data.map((value) => ({
                 severity : value.security_vulnerability.severity,
                 package_name : value.dependency.package.name
             }))
-            
-            console.log(j)
-            return j
 
       - name: Create Slack Message
         id: create-slack-message
@@ -46,3 +43,6 @@ jobs:
           script: |
             const {dependabot_alerts_data} = process.env
             console.log(dependabot_alerts_data)
+            const totalCount = dependabot_alerts_data.length
+            const criticalCount = dependabot_alerts_data.filter(val => val.severity === 'critical').length
+            console.log(`{totalCount}, {criticalCount}`)
