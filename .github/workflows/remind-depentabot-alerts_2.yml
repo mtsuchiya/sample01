@@ -42,7 +42,7 @@ jobs:
         with:
           result-encoding: string
           script: |
-            const {DEPENDABOT_ALERTS_DATA} = process.env
+            const {DEPENDABOT_ALERTS_DATA, GITHUB_SERVER_URL, GITHUB_REPOSITORY} = process.env
             const alerts_data = JSON.parse(DEPENDABOT_ALERTS_DATA)
             console.log(alerts_data)
             const totalCount = alerts_data.length
@@ -57,10 +57,11 @@ jobs:
             console.log(`${totalCount}, ${criticalCount}`)
             const messages = [
               'Dependabot alerts を確認してください。',
-              `total count:  ${totalCount}`,
-              `high count:   ${highCount}`,
+              `${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/security/dependabot`,
+              `total count: ${totalCount}`,
+              `high count: ${highCount}`,
               `medium count: ${mediumCount}`,
-              `low count:    ${lowCount}`
+              `low count: ${lowCount}`
             ]
             console.log(messages.join('\n'))
             return messages.join('\n')
