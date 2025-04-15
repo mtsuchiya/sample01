@@ -45,4 +45,4 @@ jobs:
             console.log(dependabot_alerts_data)
             const totalCount = dependabot_alerts_data.length
             //const criticalCount = dependabot_alerts_data.filter(val => val.severity === 'critical').length
-            console.log(`{totalCount}, {criticalCount}`)
+            console.log(totalCount)
