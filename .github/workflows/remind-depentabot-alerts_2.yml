@@ -23,6 +23,7 @@ jobs:
                 severity: .security_vulnerability.severity,
                 package_name: .dependency.package.name
               })')
+          $dependabot_alerts=""
           echo "DEPENDABOT_ALERTS<<EOF" >> "$GITHUB_OUTPUT"
           echo $dependabot_alerts >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
@@ -46,7 +47,7 @@ jobs:
         if: steps.create-slack-message.outputs.SLACK_MESSAGE != ''
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
-          SLACK_USERNAME: DeployBot
+          SLACK_USERNAME: Dependabot
           SLACK_ICON: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
           SLACK_TITLE: Dependabot alerts
           SLACK_COLOR: good
