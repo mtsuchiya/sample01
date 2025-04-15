@@ -16,46 +16,23 @@ jobs:
           app-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.PRIVATE_KEY }}
 
-      - name: Get Dependabot alerts
-        id: get-dependabot-alerts
+      - uses: actions/github-script@v3
         env:
-          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
-        run: |
-          dependabot_alerts=$(gh api \
-             -H "Accept: application/vnd.github+json" \
-             -H "X-GitHub-Api-Version: 2022-11-28" \
-             /repos/$GITHUB_REPOSITORY/dependabot/alerts?state=open \
-             --jq \
-             'map({
-                severity: .security_vulnerability.severity,
-                package_name: .dependency.package.name
-              })')
-          echo "DEPENDABOT_ALERTS<<EOF" >> "$GITHUB_OUTPUT"
-          echo $dependabot_alerts >> "$GITHUB_OUTPUT"
-          echo "EOF" >> "$GITHUB_OUTPUT"
-
-      - name: Create Slack Message
-        id: create-slack-message
-        if: steps.get-dependabot-alerts.outputs.DEPENDABOT_ALERTS != '' && steps.get-dependabot-alerts.outputs.DEPENDABOT_ALERTS != '[]'
-        run: |
-          dependabot_alerts='${{ steps.get-dependabot-alerts.outputs.DEPENDABOT_ALERTS }}'
-          slack_message="Dependabot alerts を確認してください。\n\
-          $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/security/dependabot\n\
-          total count: $(echo $dependabot_alerts | jq 'length')\n\
-          critical count: $(echo $dependabot_alerts | jq '.[] | select(.severity == "critical") | .severity' | wc -l)\n\
-          high count: $(echo $dependabot_alerts | jq '.[] | select(.severity == "high") | .severity' | wc -l)\n\
-          medium count: $(echo $dependabot_alerts | jq '.[] | select(.severity == "medium") | .severity' | wc -l)\n\
-          low count: $(echo $dependabot_alerts | jq '.[] | select(.severity == "low") | .severity' | wc -l)\n"
-          echo "SLACK_MESSAGE=$slack_message" >> "$GITHUB_OUTPUT"
-
-      - name: Slack Notification Dependabot alerts
-        uses: rtCamp/action-slack-notify@v2
-        if: steps.create-slack-message.outputs.SLACK_MESSAGE != ''
-        env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
-          SLACK_USERNAME: Dependabot
-          SLACK_ICON: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
-          SLACK_TITLE: Dependabot alerts
-          SLACK_COLOR: good
-          ENABLE_ESCAPES: true
-          SLACK_MESSAGE: ${{ steps.create-slack-message.outputs.SLACK_MESSAGE }}
+          TOKEN: ${{ steps.generate-token.outputs.token }}
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+          script: |
+            console.log(context)
+            const octokit = new Octokit({
+              auth: env.TOKEN
+            })
+  
+            const res = await octokit.request('GET /repos/{owner}/{repo}/dependabot/alerts', {
+              owner: 'mtsuchiya',
+              repo: 'sample01',
+              headers: {
+                'X-GitHub-Api-Version': '2022-11-28'
+              }
+            })
+            
+            console.log(res)
