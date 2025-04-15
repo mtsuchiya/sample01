@@ -40,8 +40,9 @@ jobs:
       - name: Create Slack Message
         id: create-slack-message
         env:
-          dependabot_alerts_data: ${{steps.get-dependabot-alerts.outputs.result}}
+          dependabot_alerts_data: ${{ steps.get-dependabot-alerts.outputs.result }}
         uses: actions/github-script@v7
         with:
           script: |
-            console.log(env.dependabot_alerts_data)
+            const {dependabot_alerts_data} = process.env
+            console.log(dependabot_alerts_data)
