@@ -24,7 +24,7 @@ jobs:
           script: |
             console.log(context)
   
-            const res = await octokit.request('GET /repos/{owner}/{repo}/dependabot/alerts', {
+            const res = await github.request('GET /repos/{owner}/{repo}/dependabot/alerts', {
               owner: 'mtsuchiya',
               repo: 'sample01',
               headers: {
