@@ -31,6 +31,8 @@ jobs:
         id: create-slack-message
         if: steps.get-dependabot-alerts.outputs.DEPENDABOT_ALERTS != '' && steps.get-dependabot-alerts.outputs.DEPENDABOT_ALERTS != '[]'
         run: |
+          echo $GITHUB_SERVER_URL
+          echo $GITHUB_REPOSITORY
           dependabot_alerts='${{ steps.get-dependabot-alerts.outputs.DEPENDABOT_ALERTS }}'
           slack_message="Dependabot alerts を確認してください。\n\
           $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/security/dependabot\n\
