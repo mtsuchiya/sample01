@@ -33,7 +33,7 @@ jobs:
         run: |
           dependabot_alerts='${{ steps.get-dependabot-alerts.outputs.DEPENDABOT_ALERTS }}'
           slack_message="Dependabot alerts を確認してください。\n\
-          https://github.com/mtsuchiya/sample01/security/dependabot\n\
+          $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/security/dependabot\n\
           total count: $(echo $dependabot_alerts | jq 'length')\n\
           critical count: $(echo $dependabot_alerts | jq '.[] | select(.severity == "critical") | .severity' | wc -l)\n\
           high count: $(echo $dependabot_alerts | jq '.[] | select(.severity == "high") | .severity' | wc -l)\n\
