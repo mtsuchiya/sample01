@@ -45,5 +45,17 @@ jobs:
             const alerts_data = JSON.parse(DEPENDABOT_ALERTS_DATA)
             console.log(alerts_data)
             const totalCount = alerts_data.length
+            let a = ['critical', 'high', 'medium', 'low']
             const criticalCount = alerts_data.filter(val => val.severity === 'critical').length
+            const highCount = alerts_data.filter(val => val.severity === 'high').length
+            const mediumCount = alerts_data.filter(val => val.severity === 'medium').length
+            const lowCount = alerts_data.filter(val => val.severity === 'low').length
             console.log(`${totalCount}, ${criticalCount}`)
+            const messages = [
+              'Dependabot alerts を確認してください。',
+              `total count:  ${totalCount}`,
+              `high count:   ${highCount}`,
+              `medium count: ${mediumCount}`,
+              `low count:    ${lowCount}`
+            ]
+            console.log(messages.join('\n'))
