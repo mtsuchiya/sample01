@@ -7,6 +7,7 @@ on:
 
 jobs:
   dependabot-notifier2:
+    needs: dependency-submission
     runs-on: ubuntu-latest
     permissions:
       security-events: read
