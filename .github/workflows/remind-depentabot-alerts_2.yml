@@ -47,14 +47,14 @@ jobs:
               console.log('Dependabot alerts はありません。')
               return ''
             }
-            console.log(`${} 件の Dependabot alerts があります。`)
+            console.log(`${totalCount} 件の Dependabot alerts があります。`)
             const severities = ['critical', 'high', 'medium', 'low']
             const countData = Object.fromEntries(severities.map(severity => [severity, alerts_data.filter(val => val.severity === severity).length]))
-            const countMessages = severities.map(severity => `${severity} count: ${countData[severity]}`)
+            const countMessages = severities.map(severity => `${severity}: ${countData[severity]} 件`)
             const message = [
               'Dependabot alerts を確認してください。',
               `${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/security/dependabot`,
-              `total count: ${totalCount}`,
+              `total: ${totalCount} 件`,
               ...countMessages
             ].join('\n')
             console.log(message)
