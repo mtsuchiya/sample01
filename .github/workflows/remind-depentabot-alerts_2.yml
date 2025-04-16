@@ -20,7 +20,7 @@ jobs:
         with:
           github-token: ${{ steps.generate-token.outputs.token }}
           script: |
-            const alerts_data = await github.request('GET /repos/{owner}/{repo}/dependabot/alerts?state=fixed', {
+            const alerts_data = await github.request('GET /repos/{owner}/{repo}/dependabot/alerts?state=open', {
               owner: context.repo.owner,
               repo: context.repo.repo,
               headers: {
