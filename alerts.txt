@@ -1,0 +1,8 @@
+Dependabot alerts
+Dependabot alerts を確認してください。
+https://github.com/mtsuchiya/sample01/security/dependabot
+total: 14 件
+critical: 1 件
+high: 5 件
+medium: 6 件
+low: 2 件
