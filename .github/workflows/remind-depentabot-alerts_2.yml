@@ -46,6 +46,7 @@ jobs:
             const alerts_data = JSON.parse(DEPENDABOT_ALERTS_DATA)
             const totalCount = alerts_data.length
             if (totalCount == 0) {
+              console.log('Dependabot alertsはありません。')
               return ''
             }
             const severities = ['critical', 'high', 'medium', 'low']
