@@ -49,16 +49,13 @@ jobs:
               return ''
             }
             const severities = ['critical', 'high', 'medium', 'low']
-            const count = Object.fromEntries(severities.map(severity => [severity, alerts_data.filter(val => val.severity === severity).length]))
-            console.log(count)
+            const countData = Object.fromEntries(severities.map(severity => [severity, alerts_data.filter(val => val.severity === severity).length]))
+            const countMessages = severities.map(severity => `${severity} count: ${countData[severity]}`)
             const messages = [
               'Dependabot alerts を確認してください。',
               `${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/security/dependabot`,
               `total count: ${totalCount}`,
-              `critical count: ${count.critical}`,
-              `high count: ${count.high}`,
-              `medium count: ${count.medium}`,
-              `low count: ${count.low}`
+              ...countMessages
             ]
             console.log(messages.join('\n'))
             return messages.join('\n')
