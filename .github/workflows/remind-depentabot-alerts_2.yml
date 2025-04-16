@@ -1,6 +1,8 @@
 name: Remind Dependabot alerts2
 on:
   push:
+    branches:
+      - "main"
   workflow_dispatch:
 
 jobs:
@@ -20,7 +22,7 @@ jobs:
         id: get-dependabot-alerts
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ steps.generate-token.outputs.token }}
           script: |
             const alerts_data = await github.request('GET /repos/{owner}/{repo}/dependabot/alerts', {
               owner: context.repo.owner,
