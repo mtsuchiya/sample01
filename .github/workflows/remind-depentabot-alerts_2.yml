@@ -49,7 +49,8 @@ jobs:
             if (totalCount == 0) {
               return ""
             }
-            let a = ['critical', 'high', 'medium', 'low']
+            let a = Object.fromEntries(['critical', 'high', 'medium', 'low'].map(severity => [severity, alerts_data.filter(val => val.severity === severity).length]))
+            console.log(a)
             const criticalCount = alerts_data.filter(val => val.severity === 'critical').length
             const highCount = alerts_data.filter(val => val.severity === 'high').length
             const mediumCount = alerts_data.filter(val => val.severity === 'medium').length
