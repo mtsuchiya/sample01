@@ -29,9 +29,9 @@ jobs:
                 'X-GitHub-Api-Version': '2022-11-28'
               }
             })
-            return res.data.map((value) => ({
-                severity : value.security_vulnerability.severity,
-                package_name : value.dependency.package.name
+            return res.data.map(val => ({
+                severity: val.security_vulnerability.severity,
+                package_name: val.dependency.package.name
             }))
 
       - name: Create Slack Message
@@ -44,25 +44,21 @@ jobs:
           script: |
             const {DEPENDABOT_ALERTS_DATA, GITHUB_SERVER_URL, GITHUB_REPOSITORY} = process.env
             const alerts_data = JSON.parse(DEPENDABOT_ALERTS_DATA)
-            console.log(alerts_data)
             const totalCount = alerts_data.length
             if (totalCount == 0) {
-              return ""
+              return ''
             }
-            let a = Object.fromEntries(['critical', 'high', 'medium', 'low'].map(severity => [severity, alerts_data.filter(val => val.severity === severity).length]))
-            console.log(a)
-            const criticalCount = alerts_data.filter(val => val.severity === 'critical').length
-            const highCount = alerts_data.filter(val => val.severity === 'high').length
-            const mediumCount = alerts_data.filter(val => val.severity === 'medium').length
-            const lowCount = alerts_data.filter(val => val.severity === 'low').length
-            console.log(`${totalCount}, ${criticalCount}`)
+            const severities = ['critical', 'high', 'medium', 'low']
+            const count = Object.fromEntries(severities.map(severity => [severity, alerts_data.filter(val => val.severity === severity).length]))
+            console.log(count)
             const messages = [
               'Dependabot alerts を確認してください。',
               `${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/security/dependabot`,
               `total count: ${totalCount}`,
-              `high count: ${highCount}`,
-              `medium count: ${mediumCount}`,
-              `low count: ${lowCount}`
+              `critical count: ${count.critical}`,
+              `high count: ${count.high}`,
+              `medium count: ${count.medium}`,
+              `low count: ${count.low}`
             ]
             console.log(messages.join('\n'))
             return messages.join('\n')
