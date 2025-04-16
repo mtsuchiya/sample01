@@ -6,8 +6,6 @@ on:
 jobs:
   dependabot-notifier2:
     runs-on: ubuntu-latest
-    permissions:
-      security-events: read
     steps:
       - name: Generate token
         id: generate-token
@@ -46,9 +44,10 @@ jobs:
             const alerts_data = JSON.parse(DEPENDABOT_ALERTS_DATA)
             const totalCount = alerts_data.length
             if (totalCount == 0) {
-              console.log('Dependabot alertsはありません。')
+              console.log('Dependabot alerts はありません。')
               return ''
             }
+            console.log(`${} 件の Dependabot alerts があります。`)
             const severities = ['critical', 'high', 'medium', 'low']
             const countData = Object.fromEntries(severities.map(severity => [severity, alerts_data.filter(val => val.severity === severity).length]))
             const countMessages = severities.map(severity => `${severity} count: ${countData[severity]}`)
