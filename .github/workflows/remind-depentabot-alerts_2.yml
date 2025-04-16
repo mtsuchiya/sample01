@@ -1,0 +1,73 @@
+name: Remind Dependabot alerts2
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  dependabot-notifier2:
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: read
+    steps:
+      - name: Generate token
+        id: generate-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+
+      - name: Get Dependabot alerts
+        id: get-dependabot-alerts
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+          script: |
+            const alerts_data = await github.request('GET /repos/{owner}/{repo}/dependabot/alerts', {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              headers: {
+                'X-GitHub-Api-Version': '2022-11-28'
+              }
+            })
+            return alerts_data.data.map(val => ({
+                severity: val.security_vulnerability.severity,
+                package_name: val.dependency.package.name
+            }))
+
+      - name: Create Slack Message
+        id: create-slack-message
+        env:
+          DEPENDABOT_ALERTS_DATA: ${{ steps.get-dependabot-alerts.outputs.result }}
+        uses: actions/github-script@v7
+        with:
+          result-encoding: string
+          script: |
+            const {DEPENDABOT_ALERTS_DATA, GITHUB_SERVER_URL, GITHUB_REPOSITORY} = process.env
+            const alerts_data = JSON.parse(DEPENDABOT_ALERTS_DATA)
+            const totalCount = alerts_data.length
+            if (totalCount == 0) {
+              return ''
+            }
+            const severities = ['critical', 'high', 'medium', 'low']
+            const countData = Object.fromEntries(severities.map(severity => [severity, alerts_data.filter(val => val.severity === severity).length]))
+            const countMessages = severities.map(severity => `${severity} count: ${countData[severity]}`)
+            const message = [
+              'Dependabot alerts を確認してください。',
+              `${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/security/dependabot`,
+              `total count: ${totalCount}`,
+              ...countMessages
+            ].join('\n')
+            console.log(message)
+            return message
+
+      - name: Slack Notification Dependabot alerts
+        uses: rtCamp/action-slack-notify@v2
+        if: steps.create-slack-message.outputs.result != ''
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_USERNAME: Dependabot
+          SLACK_ICON: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+          SLACK_TITLE: Dependabot alerts
+          SLACK_COLOR: good
+          ENABLE_ESCAPES: true
+          SLACK_MESSAGE: ${{ steps.create-slack-message.outputs.result }}

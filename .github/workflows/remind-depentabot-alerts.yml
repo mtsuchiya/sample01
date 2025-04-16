@@ -1,10 +1,6 @@
 name: Remind Dependabot alerts
 on:
   workflow_dispatch:
-env:
-  SLACK_USERNAME: DeployBot
-  SLACK_ICON: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
-  SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
 
 jobs:
   dependabot-notifier:
@@ -12,40 +8,53 @@ jobs:
     permissions:
       security-events: read
     steps:
-      - name: GitHub CLI
+      - name: Generate token
+        id: generate-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+
+      - name: Get Dependabot alerts
+        id: get-dependabot-alerts
         env:
-          GH_TOKEN: ${{ secrets.DEPENDABOT_TOKEN }}
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
-          gh api \
+          dependabot_alerts=$(gh api \
              -H "Accept: application/vnd.github+json" \
              -H "X-GitHub-Api-Version: 2022-11-28" \
-             /repos/mtsuchiya/sample01/dependabot/alerts?state=open \
+             /repos/$GITHUB_REPOSITORY/dependabot/alerts?state=open \
              --jq \
              'map({
                 severity: .security_vulnerability.severity,
-                package_name: .dependency.package.name,
-                created_at: .created_at
-              })' > vuls.txt || true
-          echo "total: `cat vuls.txt | jq 'length'`" > vuls_summary.txt
-          echo "critical: `cat vuls.txt | jq '.[] | select(.severity == "critical") | .severity' | wc -l`" >> vuls_summary.txt
-          echo "high: `cat vuls.txt | jq '.[] | select(.severity == "high") | .severity' | wc -l`" >> vuls_summary.txt
-          echo "medium: `cat vuls.txt | jq '.[] | select(.severity == "medium") | .severity' | wc -l`" >> vuls_summary.txt
-          echo "low: `cat vuls.txt | jq '.[] | select(.severity == "low") | .severity' | wc -l`" >> vuls_summary.txt
-
-      - name: cat result
-        run: cat vuls_summary.txt
-
-      - name: Extract Vulnerabilities info
-        id: vulunabilities-result
-        run: |
-          echo "VULNERABILITIES<<EOF" >> "$GITHUB_OUTPUT"
-          echo "$(cat vuls_summary.txt)" >> "$GITHUB_OUTPUT"
+                package_name: .dependency.package.name
+              })')
+          echo "DEPENDABOT_ALERTS<<EOF" >> "$GITHUB_OUTPUT"
+          echo $dependabot_alerts >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
+
+      - name: Create Slack Message
+        id: create-slack-message
+        if: steps.get-dependabot-alerts.outputs.DEPENDABOT_ALERTS != '' && steps.get-dependabot-alerts.outputs.DEPENDABOT_ALERTS != '[]'
+        run: |
+          dependabot_alerts='${{ steps.get-dependabot-alerts.outputs.DEPENDABOT_ALERTS }}'
+          slack_message="Dependabot alerts を確認してください。\n\
+          $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/security/dependabot\n\
+          total count: $(echo $dependabot_alerts | jq 'length')\n\
+          critical count: $(echo $dependabot_alerts | jq '.[] | select(.severity == "critical") | .severity' | wc -l)\n\
+          high count: $(echo $dependabot_alerts | jq '.[] | select(.severity == "high") | .severity' | wc -l)\n\
+          medium count: $(echo $dependabot_alerts | jq '.[] | select(.severity == "medium") | .severity' | wc -l)\n\
+          low count: $(echo $dependabot_alerts | jq '.[] | select(.severity == "low") | .severity' | wc -l)\n"
+          echo "SLACK_MESSAGE=$slack_message" >> "$GITHUB_OUTPUT"
 
       - name: Slack Notification Dependabot alerts
         uses: rtCamp/action-slack-notify@v2
-        if: steps.vulunabilities-result.outputs.VULNERABILITIES != ''
+        if: steps.create-slack-message.outputs.SLACK_MESSAGE != ''
         env:
-          SLACK_TITLE: Dependabot
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_USERNAME: Dependabot
+          SLACK_ICON: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+          SLACK_TITLE: Dependabot alerts
           SLACK_COLOR: good
-          SLACK_MESSAGE: Dependabot alerts を確認してください。 \n${{ steps.vulunabilities-result.outputs.VULNERABILITIES }}\nhttps://github.com/mtsuchiya/sample01/security/dependabot"
+          ENABLE_ESCAPES: true
+          SLACK_MESSAGE: ${{ steps.create-slack-message.outputs.SLACK_MESSAGE }}
