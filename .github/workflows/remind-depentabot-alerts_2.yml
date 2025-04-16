@@ -6,6 +6,8 @@ on:
 jobs:
   dependabot-notifier2:
     runs-on: ubuntu-latest
+    permissions:
+      security-events: read
     steps:
       - name: Generate token
         id: generate-token
