@@ -1,13 +1,10 @@
 name: Remind Dependabot alerts2
 on:
   push:
-    branches:
-      - "main"
   workflow_dispatch:
 
 jobs:
   dependabot-notifier2:
-    needs: dependency-submission
     runs-on: ubuntu-latest
     permissions:
       security-events: read
@@ -25,7 +22,7 @@ jobs:
         with:
           github-token: ${{ steps.generate-token.outputs.token }}
           script: |
-            const alerts_data = await github.request('GET /repos/{owner}/{repo}/dependabot/alerts', {
+            const alerts_data = await github.request('GET /repos/{owner}/{repo}/dependabot/alerts?state=open', {
               owner: context.repo.owner,
               repo: context.repo.repo,
               headers: {
@@ -49,15 +46,17 @@ jobs:
             const alerts_data = JSON.parse(DEPENDABOT_ALERTS_DATA)
             const totalCount = alerts_data.length
             if (totalCount == 0) {
+              console.log('Dependabot alerts はありません。')
               return ''
             }
+            console.log(`${totalCount} 件の Dependabot alerts があります。`)
             const severities = ['critical', 'high', 'medium', 'low']
             const countData = Object.fromEntries(severities.map(severity => [severity, alerts_data.filter(val => val.severity === severity).length]))
-            const countMessages = severities.map(severity => `${severity} count: ${countData[severity]}`)
+            const countMessages = severities.map(severity => `${severity}: ${countData[severity]} 件`)
             const message = [
               'Dependabot alerts を確認してください。',
               `${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/security/dependabot`,
-              `total count: ${totalCount}`,
+              `total: ${totalCount} 件`,
               ...countMessages
             ].join('\n')
             console.log(message)
